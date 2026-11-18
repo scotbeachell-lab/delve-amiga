@@ -79,6 +79,11 @@ static BOOL can_stand(Actor *a, WORD nx, WORD ny)
 static BOOL move_actor(Actor *a, WORD dx, WORD dy)
 {
     BOOL moved = 0;
+    if (!can_stand(a, a->x, a->y)) {          /* overlapping something solid: walk out */
+        a->x += dx; a->y += dy;
+        if (dx > 0) a->flip = 0; else if (dx < 0) a->flip = 1;
+        return dx || dy;
+    }
     if (dx && can_stand(a, a->x + dx, a->y)) { a->x += dx; moved = 1; }
     if (dy && can_stand(a, a->x, a->y + dy)) { a->y += dy; moved = 1; }
     if (moved && !a->kx && !a->ky) a->moved = 1;

@@ -55,7 +55,10 @@ static UWORD bot_input(void)
         static ULONG since; static WORD was_play = 1;
         if (bot_menu_reset) { was_play = 1; bot_menu_reset = 0; }
         if (was_play) { since = frame_count; was_play = 0; }
-        if (frame_count - since < 300) return 0;
+#ifndef MENU_WAIT
+#define MENU_WAIT 300
+#endif
+        if (frame_count - since < MENU_WAIT) return 0;
         return (frame_count & 32) ? IN_FIRE : 0;
     }
     for (i = ACT_MON0; i < MAX_ACTORS; i++)
@@ -318,7 +321,7 @@ static WORD play_floor(void)
 #endif
         message_tick();
         hud_update();
-#ifdef AUTOPLAY
+#if defined(AUTOPLAY) && !defined(DEMO)
         {   /* test build: frames drawn per second */
             static ULONG last_vbl; static WORD frames;
             frames++;
@@ -537,6 +540,17 @@ int main(void)
 
     while (title_screen()) {
         party_new_game();
+#ifdef START_DEPTH
+        {   /* demo/video build: start deeper with a seasoned party */
+            WORD k;
+            hero.depth = START_DEPTH;
+            for (k = 1; k < START_DEPTH + 2; k++) hero_gain_xp(hero.xpnext - hero.xp);
+            hero.weapon = 4; hero.wplus = 2; hero.armor = 2; hero.potions = 6; hero.gold = 180;
+            ally_recruit(A_WIZARD); ally_recruit(A_WARRIOR);
+            party_heal_all(1);
+            message("", 1);
+        }
+#endif
         for (;;) {
             WORD ev = play_floor();
             if (ev == EV_DEAD) { game_over(); break; }

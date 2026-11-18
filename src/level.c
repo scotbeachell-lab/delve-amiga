@@ -388,8 +388,17 @@ static void build_room(Room *r)
         interior(r, pattern, 1);
 
         if (r->type == RT_STAIRS) r->obj[6][9] = TL_STAIRS, r->obj[6][10] = 0;
-        if (r->type == RT_STAIRS || r->type == RT_CAPTIVE)
-            for (y = 5; y <= 8; y++) for (x = 8; x <= 11; x++) if (r->obj[y][x] != TL_STAIRS) r->obj[y][x] = 0;
+        /* spawn point and the two cells inside every doorway stay clear */
+        for (y = 5; y <= 8; y++) for (x = 8; x <= 11; x++) if (r->obj[y][x] != TL_STAIRS) r->obj[y][x] = 0;
+        for (d = 0; d < 4; d++)
+            if (r->doors & (1 << d)) {
+                static const BYTE in2x[4] = { 0, -1, 0, 1 }, in2y[4] = { 1, 0, -1, 0 };
+                for (c = 0; c < 2; c++) {
+                    WORD ix = door_inner[d][c][0], iy = door_inner[d][c][1];
+                    r->obj[iy][ix] = 0;
+                    r->obj[iy + in2y[d]][ix + in2x[d]] = 0;
+                }
+            }
 
         {   /* chests */
             WORD nchest = r->type == RT_TREASURE ? 2 + RND(2) : (RND(100) < 18 ? 1 : 0);
