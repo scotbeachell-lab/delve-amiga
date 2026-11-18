@@ -1,0 +1,7 @@
+[fs-uae]
+amiga_model = A1200
+kickstart_file = /home/scotb/Documents/bios/amiga-os-310-a1200.rom
+hard_drive_0 = /home/scotb/amiga-dungeon/hd
+hard_drive_0_label = DELVE
+window_width = 960
+window_height = 800
